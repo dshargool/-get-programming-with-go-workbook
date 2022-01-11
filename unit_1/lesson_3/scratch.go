@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -54,4 +56,44 @@ func main() {
 		fmt.Println("It isn't leap year!\n")
 
 	}
+
+	// Switch statements
+	room = "lake"
+
+	switch {
+	case room == "cave":
+		fmt.Println("You are in the cave of caves")
+	case room == "lake":
+		fmt.Println("You are in the lake")
+		fallthrough // This falls through to the next case (same as in C)
+	case room == "underwater":
+		fmt.Println("You are under the sea")
+	}
+	// Quick Check 3.5
+	switch room {
+	case "cave":
+		fmt.Println("You are in the cave of caves")
+	case "lake":
+		fmt.Println("You are in the lake")
+	case "underwater":
+		fmt.Println("You are under the sea")
+	}
+
+	// Looping
+	var count = 100
+	for count > 0 {
+		fmt.Println(count)
+		time.Sleep(time.Second)
+		count--
+		if rand.Int31n(99) == 0 {
+			break
+		}
+	}
+	if count == 0 {
+		fmt.Println("Liftoff!")
+	} else {
+		fmt.Println("Failure to launch")
+
+	}
+
 }
