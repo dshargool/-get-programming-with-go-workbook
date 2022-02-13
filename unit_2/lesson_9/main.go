@@ -69,5 +69,7 @@ func main() {
 			}
 		}
 		fmt.Printf("%c", c)
+		fmt.Printf("%c", c)
+		fmt.Printf("%c", c)
 	}
 }
