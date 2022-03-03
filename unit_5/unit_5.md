@@ -2,6 +2,10 @@
 - variables represent state 
 - functions and methods define behaviour 
 
+### Summary
+- Combining Methods and Structure provide much of what other languages provide for classes
+- Constructor functions are ordinary functions. 
+
 ## Lesson 21 - Structures
 - Structures group values together into one unit 
 - Structures are values that are copied when assigned or passed to functions 
@@ -94,3 +98,49 @@ curiousity_tags_json := json_tags_location{-4.58, 137.44}
 bytes, _ = json.Marshal(curiousity_tags_json)
 fmt.Println(string(bytes))
 ```
+
+## Lesson 22 - No Class
+- Write methods providing behaviour to structure data
+- Apply principles of OO Design
+
+### Attaching methods to structures
+The same way that we attach methods to types of custom `int` or `float64` we can attach to custom structs.
+```go 
+type coordinate struct {
+	d, m, s float64
+	h rune
+}
+
+//Convert from d/m/s to decimal degrees
+func (c coordinate) decimal float64 {
+	sign := 1.0
+	switch c.h {
+	case 'S','W','s','w':
+		sign = -1 
+	}
+	return sign * (c.d + c.m/60 + c.s/3600)
+}
+lat := coordinate{4, 35, 22.2, 'S'}
+long := coordinate{137, 26, 30.12, 'E'}
+
+fmt.Println(lat, long)
+fmt.Println(lat.decimal(), long.decimal())
+```
+
+### Constructors
+If you need a composite literal that's anything more than list of values, can write constructor function.
+```go 
+type location struct {
+	lat, long float64
+}
+
+func newLocation(lat, long coordinate) location {
+	return location{lat.decimal(), long.decimal()}
+}
+```
+Go does not have constructors as a special language feature and just uses ordinary functions with specific naming scheme.  Functions of the form `newType` or `NewType` are used to construct a value of said type.  It can then be used as any other function would be.
+
+If we want to construct from different input types, just create appropriate functions to do so.
+
+### Class alternative
+Go doesn't have a `class` as in other languages.  Just structures with methods related to them which accomplishes the same task.
