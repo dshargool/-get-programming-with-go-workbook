@@ -144,3 +144,67 @@ If we want to construct from different input types, just create appropriate func
 
 ### Class alternative
 Go doesn't have a `class` as in other languages.  Just structures with methods related to them which accomplishes the same task.
+
+## Lesson 23 - Composition and Forwarding
+- Compose structures with composition
+- Forward methods to other methods 
+- Forget about classical inheritance
+
+### Summary 
+- Composition is a technique of breaking large structures down into small structures and putting them together 
+- Embedding gives access to the fields of inner structure in the outer structure 
+- Methods are automatically forwarded when you embed types in a structure 
+- Go will inform of name collisions but only if those methods are used
+
+Go provides a special feature called *embedding* to forward methods when composing structures.
+
+### Composing Structures 
+Can have structures within a structure to help simplify it.
+```go 
+type report struct {
+  sol int
+  temperature temperature 
+  location location 
+}
+
+type temperature struct {
+  high, low celsius 
+}
+
+type location struct {
+  lat, long float64 
+}
+
+type celsius float64
+```
+
+Can further organize code by hanging methods from each type (such as the average of two values).
+```go 
+func (t temperature) average() celsius {
+	return (t.high + t.low) / 2
+}
+```
+
+If we want to expose this function on the parent structure we can just write a function to forward the function.  This provides convenient access.
+```go 
+func (r report) average() celsius {
+	return r.temperature.average()
+}
+```
+
+### Forwarding Methods
+It's inconvenient to add a lot of *boilerplate* code to forward these functions as it's just clutter.  Go gets around this by using *struct embedding*.  This is done by adding the type without a field name to the struct.
+```go 
+type report struct {
+  sol int
+  temperature 
+  location 
+}
+
+fmt.Printf("average temp %+v C\n", report.average())
+```
+
+This doesn't only forward methods but also the fields of the inner structure.
+
+### Name collisions
+If two embedded types have a field/method of the same name the compiler is smart enough to through an error.  To resolve we simply specify which type to use or we can define the behaviour using a methodfor the struct itself.  This is called an *ambiguous selector* error.
