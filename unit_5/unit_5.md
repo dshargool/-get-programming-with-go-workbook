@@ -208,3 +208,58 @@ This doesn't only forward methods but also the fields of the inner structure.
 
 ### Name collisions
 If two embedded types have a field/method of the same name the compiler is smart enough to through an error.  To resolve we simply specify which type to use or we can define the behaviour using a methodfor the struct itself.  This is called an *ambiguous selector* error.
+
+## Lesson 24 - Interfaces 
+- Get types talking
+- Discover interfaces as you go 
+- Explore interfaces in the standard library 
+
+### The `interface` type 
+Majority of types focus on values they store.  Interfaces aren't concerned with what they store but what they can do.  Methods express behaviour a type provides so interfaces are declared with a set of methods that a type must satisfy. 
+
+```go 
+	var t interface {
+		talk() string
+	}
+```
+Here the variable `t` can hold any value that satisfies the interface. Specifically, a type will satisfy the interface if it declares a method named `talk()` that accepts no arguments and returns a string.
+```go 
+type martian struct{}
+
+func (m martian) talk() string {
+	return "nick nick"
+}
+
+type laser int
+
+func (l laser) talk() string {
+	return strings.Repeat("pew ", int(l))
+}
+
+
+	t = martian{}
+	fmt.Println(t.talk())
+
+	t = laser(3)
+	fmt.Println(t.talk())
+```
+This is also known as *polymorphism*.
+
+Typically interfaces are declared as types that can be reused.  There's a convention of naming interface types with an `-er` suffix.  Such as a `talk` interface being `talker`.
+```go 
+type talker interface {
+	talk() string 
+}
+```
+Interface type can be used anywhere other types are used.  Method parameters, etc.  Can use the function with any value that satisfies the interface.
+```go 
+func shout(t talker) {
+	louder := strings.ToUpper(t.talk()) 
+	fmt.Println(louder)
+}
+shout(martian{})
+shout(laser(2))
+```
+Interfaces are useful when we change or extend code.  When a new type is declared with a `talk` method the `shout` function will work with it.  Any code that only depends on the interface can remain the same, even as implementations are added and modified.
+
+NOTE: Interfaces can be used with struct embedding.
