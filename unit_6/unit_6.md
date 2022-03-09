@@ -4,6 +4,17 @@
 - Understand relationship between pointers and RAM 
 - When to use (and not use) pointers
 
+### Summary 
+- Pointers store memory addresses 
+- Address operator (&) provides memory address of variable 
+- Dereference operator (\*) provides value that address points to 
+- Pointers are types declared with preceding asterisk `*int` 
+- Use pointers to mutate values across function and method bounderies 
+- Pointers are most useful with structures and arrays 
+- Maps and slices use pointers behind the scenes 
+- Interior pointers can point at fields inside structures without declaring them as pointers 
+- Don't overuse pointers as they can make code confusing
+
 ### Overview 
 Pointer is a variable that points to the address of another variable.  A form of *indirection*.
 
@@ -145,3 +156,24 @@ func main() {
 	fmt.Printf("%c", board[0][0])
 }
 ```
+
+#### Maps are pointers
+```go 
+func demolist(planets *map[string]string) //Unnecessary pointer
+``` 
+
+#### Slices point at arrays 
+A slice is represented with three elements, a pointer to an array, the capacity and length of the slice.  Internal pointer allows underlying data to be mutated when a slice is passed directly to a function or method.
+
+Explicit pointers to slices are only useful when modifying slice itself (length, capacity, or starting offset).  Arguably it would be cleaner to return a new slice.
+```go 
+// Modify the length of the slice
+func reclassify(planets *[]string) {
+	*planets = (*planets)[0:8]
+}
+```
+
+#### Pointers and Interfaces
+A pointer to a value that satisfies all the interfaces that the non-pointer version satisfies will satisfy the interface.
+
+

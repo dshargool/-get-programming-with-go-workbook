@@ -102,6 +102,6 @@ func main() {
 	fmt.Println(rebecca.age)
 
 	player := character{name: "Matthias"}
-	levelUp(&player.stats)
+	levelUp(&player.stats) // Character structure doesn't have pointers but can take memory address of any field when need
 	fmt.Printf("%+v\n", player.stats)
 }
