@@ -31,6 +31,23 @@ type character struct {
 	stats stats
 }
 
+type turtle struct {
+	x, y int
+}
+
+func (t *turtle) up() {
+	t.y++
+}
+func (t *turtle) down() {
+	t.y--
+}
+func (t *turtle) right() {
+	t.x++
+}
+func (t *turtle) left() {
+	t.x--
+}
+
 func main() {
 	answer := 42
 	fmt.Println(&answer)  //Prints address of the answer variable
@@ -104,4 +121,16 @@ func main() {
 	player := character{name: "Matthias"}
 	levelUp(&player.stats) // Character structure doesn't have pointers but can take memory address of any field when need
 	fmt.Printf("%+v\n", player.stats)
+
+	// turtle.go
+	var turt turtle
+	turt.up()
+	turt.up()
+	turt.up()
+	turt.up()
+	turt.up()
+	turt.down()
+	turt.right()
+	fmt.Println(turt)
+
 }
