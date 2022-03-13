@@ -176,4 +176,94 @@ func reclassify(planets *[]string) {
 #### Pointers and Interfaces
 A pointer to a value that satisfies all the interfaces that the non-pointer version satisfies will satisfy the interface.
 
+## NIL 
+- Do something about nothing (NIL)
+- Understand the trouble with nil 
+- See how Go improves on nil 
+
+`nil` is a zero value.  A pointer with nowhere to point has the value `nil`.  `nil` identifier is the zero value for slices, maps and interfaces.
+nil is known as NULL, null or None in other languages.
+
+#### Summary 
+- Nil pointer dereferences will crash program 
+- Methods can guard against receiving nil values 
+- Default behaviour can be provided for functions pass as args 
+- A nil slice often interchangeable but not the same as empty slice 
+- Nil map can be read but not written 
+- Interface must have type and value nil to be considered nil 
+
+### nil causes panic 
+If a pointer isn't pointing anywhere, attempting to dereference will cause a panic and the program will crash.
+```go
+	var nowhere *int
+	fmt.Println(nowhere)
+	fmt.Println(*nowhere) // Causes a panic
+```
+
+Easy to avoid by checking for nil pointer.
+```go
+	var nowhere *int
+	fmt.Println(nowhere)
+	if nowhere != nil {
+		fmt.Println(*nowhere) // Not reached if it would cause a panic
+	}
+```
+
+### Guarding Methods 
+Since methods frequentyl receive pointers we know it could be nil.
+Go will happily call methods even when the receiver has a nil value.  This means we can use a similar tactic to above to guard against the nil value.
+```go 
+func (p *person) birthday() {
+	if p == nil {
+		return
+	}
+	p.age++
+}
+```
+
+### Nil function values 
+When a variable is declared as a function type its value is nil by default.  
+```go
+var fn func(a, b int) int 
+fmt.Println(fn == nil) // Prints true
+```
+
+It's possible to check whether a function value is nil and provide default behaviour
+
+### nil slice 
+Nil and empty slice aren't equivalent.  When accepting a slice ensure that nil and empty do have same behaviour.
+Safe functions to use are `len`, `cap`, `append`, and `range`.  Directly accessing an element of an empty or nil slice will cause a panic.
+
+### nil maps 
+As with slices, a map declared without a composite literal or make build-in has a vlue of nil.  Maps can be read when nil but can not be written to (will cause panic on write).
+
+### nil Interfaces 
+When variable is declared to be an interface type without assignment, zero value is nil.
+```go
+var v interface{} 
+fmt.Printf("%T %v %v\n, v, v ,v == nil) //Print <nil> <nil> true 
+```
+Both interface type and value must be nil for the variable to equal nil.
+```go
+fmt.Printf("%#v\n", v)
+```
+
+### Alternative to nil 
+Use a small structure for holding an unset value.
+```go 
+type number struct {
+	value int
+	valid bool 
+}
+
+func newNumber(v int) number {
+	return number{value: v, valid: true}
+}
+
+func (n number) String() string {
+if !n.valid {
+	return "not set"
+}
+return fmt.Sprintf("%d", n.value)
+```
 
