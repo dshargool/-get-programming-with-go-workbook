@@ -267,3 +267,140 @@ if !n.valid {
 return fmt.Sprintf("%d", n.value)
 ```
 
+## Err 
+- Write files and handle failure 
+- Handle errors with creativity
+- Make and identify specific errors 
+- Not panic
+
+#### Summary 
+- Errors are values that interoperate with multiple return values and rest of Golang 
+- Lots of flexibility if you get creative 
+- Custom error types are possible by satisfying `error` interface 
+- `defer` cleans up before a function returns 
+- Type assertions can convert interface to a concrete type or another interface 
+- Avoid use of `panic` and return an `error `instead.
+
+
+### Handling errors
+Go has multiple return values allowing a function to return `err` as one of those.
+```go
+	files, err := ioutil.ReadDir("..")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	for _, file := range files {
+		fmt.Println(file.Name())
+	}
+```
+
+### Adding elegance to err 
+One way to reduce amount of error handling code is to isolate error-free subset of a program from an inherently error-prone one (ex. IO).
+
+#### Writing error handling
+It is good practice to consistently indent errors making it easier to scan through the code without reading all the error handling.
+
+Don't try to exit the program if we can handle it gracefully, functions should return errors instead of exiting in case the calling program wants to retry.
+
+### `defer`
+TO ensure that an action takes place before a containing function returns we can use the defer statement.
+Any method or function can be deferred and it's not specifically for error handling though it does remove that burden by handling clean up.
+
+### Adding creativity to error handling 
+This code snippet shows how to can be smart and store the `err` in a structure and handle the error on consecutive calls to this writer.  By doing this we apply the error handling to the structure and not to each individual line.
+```go
+type safeWriter struct {
+	w   io.Writer
+	err error
+}
+
+func (sw *safeWriter) writeln(s string) {
+	if sw.err != nil {
+		return // Don't write if the last time we tried something it err'd
+	}
+
+	_, sw.err = fmt.Fprintln(sw.w, s) //Write a line and store the error in the struct
+}
+```
+
+### New errors 
+New errors occur when something goes wrong and we need to tell the caller about the problem.
+
+`errors` package contains a constructor function that accepts a string for an error message.
+Make sure that error messages are useful.  They may be useful to users or other developers trying to use the program.
+
+```go 
+(g *Grid) Set(row, column int, digit int8) error {
+	if !inBounds(row, column) {
+		return errors.New("Out of bounds")
+	}
+	g[row][column] = digit
+	return nil
+
+}
+```
+
+### Errors in packages 
+We can create custom error variables to include and return the variable instead of having to create a new error every time
+
+```go 
+var (
+	ErrBounds = errors.New("Out of bounds")
+	ErrDigit  = errors.New("Invalid digit")
+)
+
+func (g *Grid) Set(row, column int, digit int8) error {
+	if !inBounds(row, column) {
+		return ErrBounds
+	}
+	g[row][column] = digit
+	return nil
+
+}
+```
+
+### Custom errors types 
+`error` type is an interace meaning that any type implementing `Error()` will satisfy the interface.
+
+```go 
+type SudokuError []error
+
+func (se SudokuError) Error() string {
+	var s []string
+	for _, err := range se {
+		s = append(s, err.Error())
+	}
+	return strings.Join(s, ", ")
+}
+```
+
+#### Type assertions 
+To access individual errors we can do so with type assertions.
+Below we assert that `err` is of type `SudokuError` and then we can get the struct of type `SodukoError` and examine the slice that the type is.
+
+### Panic
+Go doesn't have `exceptions` like other languages but it does have `panic`.  When a panic occurs the program will crash (as with unhandled exceptions).
+
+Exceptions tend to be opt-in whereas Error values in go are simple and are readily available.
+
+Benefits: 
+- Pushes developers to consider errors 
+- Errors don't require specialized keywords making them simpler and more flexible
+
+Panic should be rare but it should be noted that `panic` will run any deferred functions where `exit` will not.
+
+To keep panic from crashing the program there is the `recover` function.
+
+If a deferred function calls recover, the panic will stop and the program continues running.
+
+```go 
+	defer func() {
+		if e := recover(); e != nil {
+			fmt.Println("Recovery....!")
+			fmt.Println(e)
+		}
+	}()
+
+	panic("I forgot my towel")
+```
